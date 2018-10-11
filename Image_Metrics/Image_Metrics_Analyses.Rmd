@@ -1,0 +1,205 @@
+---
+title: "Lesion Segmentation Image Metrics"
+author: "KLI"
+date: "9/10/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#library(PMCMR)
+library(data.table)
+library(Hmisc)
+library(corrgram)
+#library(mvoutlier)
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+#setwd('')
+dataFile <- read.csv("Image_Metrics_132subj.csv")
+
+attach(dataFile)
+
+dataFile$lesion.x <- as.factor(dataFile$lesion.x)
+```
+DC ALI
+```{r dc, echo=FALSE}
+summary(dataFile$ALI_DC)
+
+ggplot(dataFile, aes(x=ALI_DC, fill=lesion.x))+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
+  labs(y="Frequency",
+       x="Dice",
+       title="DC for ALI") +
+  ylim(c(0,30))
+```
+DC lesion_gnb
+```{r echo=FALSE}
+sprintf("DC LesionGNB")
+summary(dataFile$lesion_gnb_DC)
+
+
+ggplot(dataFile, aes(x=lesion_gnb_DC, fill=lesion.x)) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
+  labs(y="Frequency",
+       x="Dice",
+       title="DC for lesion_gnb") +
+  ylim(c(0,30))
+
+```
+DC LINDA
+```{r echo=FALSE}
+summary(dataFile$linda_DC)
+
+ggplot(dataFile, aes(x=linda_DC, fill=lesion.x))+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
+  labs(y="Frequency",
+       x="Dice",
+       title="DC for LINDA") +
+  ylim(c(0,30))
+
+boxplot(dataFile$ALI_DC,dataFile$lesion_gnb_DC,dataFile$linda_DC,names=c("ALI","lesion_gnb","LINDA"), col="lightgray")
+title("Dice Coefficient")
+```
+Statistical Analyses
+
+Friedman's Test
+```{r echo=FALSE}
+
+DataTable<-matrix(c(dataFile$ALI_DC,dataFile$lesion_gnb_DC,dataFile$linda_DC),ncol=3)
+friedman.test(DataTable)
+
+
+cat('Pairwise Comparisons (bonferonni corrected)')
+wilcox.test(dataFile$ALI_DC,dataFile$lesion_gnb_DC,paired=TRUE)
+wilcox.test(dataFile$ALI_DC,dataFile$lesion_gnb_DC,paired=TRUE)$p.value*3
+
+wilcox.test(dataFile$ALI_DC,dataFile$linda_DC,paired=TRUE)
+
+wilcox.test(dataFile$ALI_DC,dataFile$linda_DC,paired=TRUE)$p.value*3
+
+wilcox.test(dataFile$linda_DC,dataFile$lesion_gnb_DC,paired=TRUE)
+wilcox.test(dataFile$linda_DC,dataFile$lesion_gnb_DC,paired=TRUE)$p.value*3
+
+```
+
+HAUSDORFF's DISTANCE
+```{r hd, echo=FALSE}
+
+boxplot(dataFile$ALI_HD,dataFile$lesion_gnb_HD,dataFile$linda_HD,names=c("ALI","lesion_gnb","LINDA"), col="gray")
+title("Hausdorff's Distance")
+
+sprintf("HD ALI")
+summary(dataFile$ALI_HD)
+sprintf("HD LesionGNB")
+summary(dataFile$lesion_gnb_HD)
+sprintf("HD Linda")
+summary(dataFile$linda_HD)
+
+DataTable<-matrix(c(dataFile$ALI_HD,dataFile$lesion_gnb_HD,dataFile$linda_HD),ncol=3)
+
+
+
+friedman.test(DataTable)
+
+wilcox.test(dataFile$ALI_HD,dataFile$lesion_gnb_HD,paired=TRUE)
+wilcox.test(dataFile$ALI_HD,dataFile$lesion_gnb_HD,paired=TRUE)$p.value*3
+
+
+wilcox.test(dataFile$ALI_HD,dataFile$linda_HD,paired=TRUE)
+wilcox.test(dataFile$ALI_HD,dataFile$linda_HD,paired=TRUE)$p.value*3
+
+wilcox.test(dataFile$linda_HD,dataFile$lesion_gnb_HD,paired=TRUE)
+wilcox.test(dataFile$linda_HD,dataFile$lesion_gnb_HD,paired=TRUE)$p.value*3
+
+
+```
+ASSD
+```{r assd, echo=FALSE}
+
+boxplot(dataFile$ALI_ASSD,dataFile$lesion_gnb_ASSD,dataFile$linda_ASSD,names=c("ALI","lesion_gnb","LINDA"),col="gray")
+title("Average Symmetric Surface Distance")
+
+sprintf("ASSD ALI")
+summary(dataFile$ALI_ASSD)
+sprintf("ASSD LesionGNB")
+summary(dataFile$lesion_gnb_ASSD)
+sprintf("ASSD Linda")
+summary(dataFile$linda_ASSD)
+
+DataTable<-matrix(c(dataFile$ALI_ASSD,dataFile$lesion_gnb_ASSD,dataFile$linda_ASSD),ncol=3)
+
+
+friedman.test(DataTable)
+wilcox.test(dataFile$ALI_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)
+wilcox.test(dataFile$ALI_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)$p.value*3
+
+wilcox.test(dataFile$ALI_ASSD,dataFile$linda_ASSD,paired=TRUE)
+wilcox.test(dataFile$ALI_ASSD,dataFile$linda_ASSD,paired=TRUE)$p.value*3
+
+wilcox.test(dataFile$linda_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)
+wilcox.test(dataFile$linda_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)$p.value*3
+```
+PRECISION
+```{r precision, echo=FALSE}
+
+boxplot(dataFile$ALI_Precision,dataFile$lesion_gnb_Precision,dataFile$linda_Precision,names=c("ALI","lesion_gnb","LINDA"),col="gray")
+title("Precision")
+
+sprintf("Prec ALI")
+summary(dataFile$ALI_Precision)
+sprintf("Prec LesionGNB")
+summary(dataFile$lesion_gnb_Precision)
+sprintf("Prec Linda")
+summary(dataFile$linda_Precision)
+
+DataTable<-matrix(c(dataFile$ALI_Precision,dataFile$lesion_gnb_Precision,dataFile$linda_Precision),ncol=3)
+friedman.test(DataTable)
+
+wilcox.test(dataFile$ALI_Precision,dataFile$lesion_gnb_Precision,paired=TRUE)
+wilcox.test(dataFile$ALI_Precision,dataFile$lesion_gnb_Precision,paired=TRUE)$p.value*3
+
+
+wilcox.test(dataFile$ALI_Precision,dataFile$linda_Precision,paired=TRUE)
+wilcox.test(dataFile$ALI_Precision,dataFile$linda_Precision,paired=TRUE)$p.value*3
+
+
+wilcox.test(dataFile$linda_Precision,dataFile$lesion_gnb_Precision,paired=TRUE)
+wilcox.test(dataFile$linda_Precision,dataFile$lesion_gnb_Precision,paired=TRUE)$p.value*3
+
+```
+
+RECALL
+```{r recall, echo=FALSE}
+
+boxplot(dataFile$ALI_Recall,dataFile$lesion_gnb_Recall,dataFile$linda_Recall,names=c("ALI","lesion_gnb","LINDA"), col="gray")
+title("Recall")
+
+sprintf("Recall ALI")
+summary(dataFile$ALI_Recall)
+sprintf("Recall LesionGNB")
+summary(dataFile$lesion_gnb_Recall)
+sprintf("Recall Linda")
+summary(dataFile$linda_Recall)
+
+
+DataTable<-matrix(c(dataFile$ALI_Recall,dataFile$lesion_gnb_Recall,dataFile$linda_Recall),ncol=3)
+friedman.test(DataTable)
+
+wilcox.test(dataFile$ALI_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)
+wilcox.test(dataFile$ALI_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)$p.value*3
+
+
+wilcox.test(dataFile$ALI_Recall,dataFile$linda_Recall,paired=TRUE)
+wilcox.test(dataFile$ALI_Recall,dataFile$linda_Recall,paired=TRUE)$p.value*3
+
+
+wilcox.test(dataFile$linda_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)
+wilcox.test(dataFile$linda_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)$p.value*3
+```

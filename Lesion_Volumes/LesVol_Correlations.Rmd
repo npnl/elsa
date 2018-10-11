@@ -1,0 +1,152 @@
+---
+title: "Lesion Volume correlation"
+author: "KLI"
+date: "9/10/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#library(PMCMR)
+library(data.table)
+library(Hmisc)
+library(corrgram)
+#library(mvoutlier)
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+
+#set working directory
+#setwd('')
+
+#read in data file
+dataFile <- read.csv("132subj_lesionVols.csv")
+
+```
+
+```{r echo=FALSE}
+dat <-  data.frame(x=dataFile$LesionSmooth, y=dataFile$ALI)
+
+cor.test(dataFile$LesionSmooth,dataFile$ALI,
+         alternative=c("two.sided"),
+         method=c("pearson"))
+
+#scatterplot
+xyplot(ALI ~ LesionSmooth, data = dataFile,
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "ALI Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and ALI",
+       type = c("p","r")
+)
+```
+<br>
+Adjusting for outliers
+```{r echo=FALSE}
+model.ALI <- lm(dataFile$LesionSmooth ~ dataFile$ALI)
+cook <- cooks.distance(model.ALI)
+cookUnnamed <- unname(cook,force=FALSE)
+obs<-which(cookUnnamed>1)
+row2keep<-which(cookUnnamed<1)
+LesionSmoothNew<-dataFile$LesionSmooth[row2keep]
+ALINew<-dataFile$ALI[row2keep]
+
+cor.test(LesionSmoothNew,ALINew,
+         alternative=c("two.sided"),
+         method=c("pearson"))
+
+#scatterplot
+xyplot(ALINew ~ LesionSmoothNew, data = dataFile,
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "ALI Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and ALI, adjusted",
+       type = c("p","r")
+)
+```
+<br>
+LESION_GNB
+```{r echo=FALSE}
+
+dat <-  data.frame(x=dataFile$newLesionSmooth, y=dataFile$newLesionGNB)
+
+cor.test(dataFile$LesionSmooth,dataFile$LesionGNB,
+         alternative=c("two.sided"),
+         method=c("pearson"))
+
+
+
+#scatterplot
+xyplot(LesionGNB ~ LesionSmooth, data = dataFile,
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "lesion_gnb Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and lesion_gnb",
+       type = c("p","r")
+)
+```
+<br>
+lesion_gnb - adjusting for outliers:
+```{r echo=FALSE}
+
+model.lesionGNB <-lm(dataFile$LesionSmooth ~ dataFile$LesionGNB)
+cook <- cooks.distance(model.lesionGNB)
+cookUnnamed <- unname(cook, force=FALSE)
+obs<-which(cookUnnamed>1)
+row2keep<-which(cookUnnamed<1)
+LesionSmoothNew<-dataFile$LesionSmooth[row2keep]
+lesionGNBNew<-dataFile$LesionGNB[row2keep]
+
+cor.test(LesionSmoothNew,lesionGNBNew,
+         alternative=c("two.sided"),
+         method="pearson")
+
+
+xyplot(lesionGNBNew ~ LesionSmoothNew, 
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "lesion_gnb Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and lesion_gnb, Adjusted",
+       type = c("p","r")
+)
+```
+<br>
+LINDA
+```{r echo=FALSE}
+
+dat <-  data.frame(x=dataFile$LesionSmooth, y=dataFile$Linda)
+
+cor.test(dataFile$LesionSmooth,dataFile$Linda,
+         alternative=c("two.sided"),
+         method=c("pearson"))
+
+
+#scatterplot
+xyplot(Linda ~ LesionSmooth, data = dataFile,
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "LINDA Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and LINDA",
+       type = c("p","r")
+)
+```
+<br>
+Adjusting for outliers:
+```{r echo=FALSE}
+
+model.Linda <- lm(dataFile$LesionSmooth ~ dataFile$Linda)
+cook <- cooks.distance(model.Linda)
+cookUnnamed <- unname(cook,force=FALSE)
+obs<-which(cookUnnamed>1)
+row2keep<-which(cookUnnamed<1)
+LesionSmoothNew<-dataFile$LesionSmooth[row2keep]
+LindaNew<-dataFile$Linda[row2keep]
+
+cor.test(LesionSmoothNew,LindaNew,
+         alternative=c("two.sided"),
+         method=c("pearson"))
+
+
+xyplot(LindaNew ~ LesionSmoothNew, 
+       xlab = "Expert Segmentation Lesion Volume (mm^3)",
+       ylab = "LINDA Segmentation Lesion Volume (mm^3)",
+       main = "Lesion Volume Correlation Between Expert Segmentation and LINDA, Adjusted",
+       type = c("p","r")
+)
+
+```

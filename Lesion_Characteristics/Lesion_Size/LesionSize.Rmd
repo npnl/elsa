@@ -1,0 +1,179 @@
+---
+title: "Contingency analyses for Lesion Size 20180907"
+author: "KLI"
+date: "09/06/2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r echo=FALSE}
+library(ggplot2)
+library(plyr)
+library(MASS)
+library(rcompanion)
+library(RVAideMemoire)
+
+#set working directory
+#setwd('')
+
+working_df <- read.csv("181_MetaData+DC.csv")
+cat('ALI')
+summary(working_df$ALI_DC)
+ALI_IQ1=summary(working_df$ALI_DC)[2]
+ALI_IQ3=summary(working_df$ALI_DC)[5]
+
+cat('lesion_gnb')
+summary(working_df$lesion_gnb_DC)
+lesionGNB_IQ1=summary(working_df$lesion_gnb_DC)[2]
+lesionGNB_IQ3=summary(working_df$lesion_gnb_DC)[5]
+
+cat('LINDA')
+summary(working_df$linda_DC)
+Linda_IQ1=summary(working_df$linda_DC)[2]
+Linda_IQ3=summary(working_df$linda_DC)[5]
+
+
+###############################################################################################
+ALI_Q1 <- working_df [ which(working_df$ALI_DC <= ALI_IQ1),]
+ALI_Q1_LesSize=count(ALI_Q1, 'LesVol_Categorical')
+ALI_Q1_LesSize[3,]=c(3,0)
+
+ALI_Q4 <- working_df [ which(working_df$ALI_DC >= ALI_IQ3),]
+ALI_Q4_LesSize=count(ALI_Q4, 'LesVol_Categorical')
+ALI_Q4_LesSize[3,]=c(1,0)
+
+####
+lesionGNB_Q1 <- working_df [ which(working_df$lesion_gnb_DC <= lesionGNB_IQ1),]
+lesionGNB_Q1_LesSize=count(lesionGNB_Q1, 'LesVol_Categorical')
+
+
+lesionGNB_Q4 <- working_df [ which(working_df$lesion_gnb_DC >= lesionGNB_IQ3),]
+lesionGNB_Q4_LesSize=count(lesionGNB_Q4, 'LesVol_Categorical')
+lesionGNB_Q4_LesSize[3,]=c(1,0)
+
+#####
+Linda_Q1 <- working_df [ which(working_df$linda_DC <= Linda_IQ1),]
+Linda_Q1_LesSize=count(Linda_Q1, 'LesVol_Categorical')
+Linda_Q1_LesSize[3,]=c(3,0)
+
+
+Linda_Q4 <- working_df [ which(working_df$linda_DC >= Linda_IQ3),]
+Linda_Q4_LesSize=count(Linda_Q4, 'LesVol_Categorical')
+Linda_Q4_LesSize[3,]=c(1,0)
+
+####
+ALI_Q1_hemi=count(ALI_Q1,'LesHem')
+ALI_Q4_hemi=count(ALI_Q4,'LesHem')
+lesionGNB_Q1_hemi=count(lesionGNB_Q1,'LesHem')
+lesionGNB_Q4_hemi=count(lesionGNB_Q4,'LesHem')
+Linda_Q1_hemi=count(Linda_Q1,'LesHem')
+Linda_Q4_hemi=count(Linda_Q4,'LesHem')
+####
+
+```
+Fisher's Exact Test testing for differences in frequency of lesion sizes for best and worst cases.
+<br>
+ALI: 
+```{r echo=FALSE}
+ALI_LesSizes <- merge(ALI_Q1_LesSize,ALI_Q4_LesSize,by="LesVol_Categorical")
+colnames(ALI_LesSizes) <- c("LesSize","Q1","Q4")
+ALI_LesSizes<-ALI_LesSizes[,-1]
+rownames(ALI_LesSizes)<-c("Small", "Medium", "Large")
+ALI_LesSizes<-t(ALI_LesSizes)
+ALI_LesSizes
+cat('p-val')
+fisher.test(ALI_LesSizes)$p.value*3
+```
+Multiple Comparisons with bonferroni correction (3 comparisons * 3 approaches?)
+```{r echo=FALSE}
+fisher.multcomp(ALI_LesSizes, p.method="bonferroni")$p.value*3
+```
+
+lesionGNB
+```{r echo=FALSE}
+
+lesionGNB_LesSizes <- merge(lesionGNB_Q1_LesSize,lesionGNB_Q4_LesSize,by="LesVol_Categorical")
+colnames(lesionGNB_LesSizes) <- c("LesSize","Q1","Q4")
+lesionGNB_LesSizes<-lesionGNB_LesSizes[,-1]
+rownames(lesionGNB_LesSizes)<-c("Small", "Medium", "Large")
+lesionGNB_LesSizes<-t(lesionGNB_LesSizes)
+lesionGNB_LesSizes
+cat('p-value')
+fisher.test(lesionGNB_LesSizes)$p.value*3
+cat('multiple comparisons')
+fisher.multcomp(lesionGNB_LesSizes,p.method="bonferroni")$p.value*3
+```
+
+Linda
+```{r echo=FALSE}
+
+Linda_LesSizes <- merge(Linda_Q1_LesSize,Linda_Q4_LesSize,by="LesVol_Categorical")
+colnames(Linda_LesSizes) <- c("LesSize","Q1","Q4")
+Linda_LesSizes<-Linda_LesSizes[,-1]
+rownames(Linda_LesSizes)<-c("Small", "Medium", "Large")
+Linda_LesSizes<-t(Linda_LesSizes)
+Linda_LesSizes
+cat('p-value')
+fisher.test(Linda_LesSizes)$p.value*3
+cat('multiple comparisons')
+fisher.multcomp(Linda_LesSizes,p.method="bonferroni")$p.value*3
+```
+
+
+Fisher's Exact Test for differences between approaches within each lesion size category
+<br>
+```{r echo=FALSE}
+
+ALI_LesSizes <- merge(ALI_Q1_LesSize,ALI_Q4_LesSize,by="LesVol_Categorical")
+colnames(ALI_LesSizes) <- c("LesSize","Q1","Q4")
+ALI_LesSizes<-ALI_LesSizes[,-1]
+rownames(ALI_LesSizes)<-c("Small", "Medium", "Large")
+lesionGNB_LesSizes <- merge(lesionGNB_Q1_LesSize,lesionGNB_Q4_LesSize,by="LesVol_Categorical")
+colnames(lesionGNB_LesSizes) <- c("LesSize","Q1","Q4")
+lesionGNB_LesSizes<-lesionGNB_LesSizes[,-1]
+rownames(lesionGNB_LesSizes)<-c("Small", "Medium", "Large")
+Linda_LesSizes <- merge(Linda_Q1_LesSize,Linda_Q4_LesSize,by="LesVol_Categorical")
+colnames(Linda_LesSizes) <- c("LesSize","Q1","Q4")
+Linda_LesSizes<-Linda_LesSizes[,-1]
+rownames(Linda_LesSizes)<-c("Small", "Medium", "Large")
+
+Small_ALI<-ALI_LesSizes[1,]
+Medium_ALI<-ALI_LesSizes[2,]
+Large_ALI<-ALI_LesSizes[3,]
+
+Small_lesionGNB<-lesionGNB_LesSizes[1,]
+Medium_lesionGNB<-lesionGNB_LesSizes[2,]
+Large_lesionGNB<-lesionGNB_LesSizes[3,]
+
+Small_Linda<-Linda_LesSizes[1,]
+Medium_Linda<-Linda_LesSizes[2,]
+Large_Linda<-Linda_LesSizes[3,]
+```
+
+Small
+```{r echo=FALSE}
+Small <- rbind(Small_ALI,Small_lesionGNB,Small_Linda)
+rownames(Small)<-c("ALI", "lesionGNB", "Linda")
+Small
+fisher.test(Small)$p.value*3
+#fisher.multcomp(Small, p.method="bonferroni")$p.value*3 
+```
+
+Medium
+```{r echo=FALSE}
+Medium <- rbind(Medium_ALI,Medium_lesionGNB,Medium_Linda)
+rownames(Medium)<-c("ALI", "lesionGNB", "Linda")
+Medium
+fisher.test(Medium)$p.value*3 
+#fisher.multcomp(Medium,p.method="bonferroni")$p.value*3 
+```
+
+Large
+```{r echo=FALSE}
+Large <- rbind(Large_ALI,Large_lesionGNB,Large_Linda)
+rownames(Large)<-c("ALI", "lesionGNB", "Linda")
+Large
+fisher.test(Large)$p.value*3
+#fisher.multcomp(Large,p.method="bonferroni")$p.value*3 
+```

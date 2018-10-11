@@ -1,0 +1,33 @@
+---
+title: "minimum_distance"
+author: "KLI"
+date: "10/4/2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+
+#set working directory
+#setwd('')
+
+#read in data file
+df <- read.csv("minHD_All.csv")
+
+attach(df)
+df$algorithm <- as.factor(df$algorithm)
+
+ggplot(df, aes(x=minHD, fill=algorithm, color=algorithm)) +
+  geom_histogram(aes(y=..density..), alpha =0.5) +
+  geom_density(alpha=0.6) +
+  scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))+
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))+
+  labs(title="Distance from manual label for cases with no overlap",x="distance (mm)", y = "density")+
+  theme_classic()
+
+```
+
