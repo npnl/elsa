@@ -20,7 +20,8 @@ __/Lesion_Characteristics__
 	key:
 	strokeType: 1= cortical, 2=subcortical, 3=brainstem, 4=cerebellar
 	LesHem: 0=left hemisphere stroke, 1=right hemisphere stroke
-	LesVol_Categorical: 1=small, 2=medium, 3=large```
+	LesVol_Categorical: 1=small, 2=medium, 3=large
+	```
 	
 __/Minimum_Distance__
 - this directory contains the R script used to create Figure 4 in the manuscript. 
