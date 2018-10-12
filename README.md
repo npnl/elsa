@@ -16,6 +16,7 @@ __/Lesion_Volumes__
 __/Lesion_Characteristics__
 - this directory contains data and analyses for the Fisher's exact tests used to analyze whether performance on automated methods varied by lesion size or stroke territory
 - the csv file contains data for all 181 subjects
+
 	```
 	key:
 	strokeType: 1= cortical, 2=subcortical, 3=brainstem, 4=cerebellar
