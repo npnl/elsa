@@ -1,0 +1,115 @@
+---
+title: "Table4_eval_median"
+author: "KLI"
+date: "4/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(xtable)
+```
+
+```{r}
+clusterize_df <-read.csv("./Clusterize_Data.csv", na.strings="?")
+
+clusterize_med_dc = toString(round(summary(clusterize_df$DI_Clusterize)[[3]],2))
+clusterize_med_hd = toString(round(summary(clusterize_df$HD_Clusterize)[[3]],2))
+clusterize_med_assd = toString(round(summary(clusterize_df$ASSD_Clusterize)[[3]],2))
+clusterize_med_prec = toString(round(summary(clusterize_df$Prec_Clusterize)[[3]],2))
+clusterize_med_recall = toString(round(summary(clusterize_df$Recall_Clusterize)[[3]],2))
+
+clusterize_iqr_dc = toString(round(IQR(clusterize_df$DI_Clusterize),2))
+clusterize_iqr_hd = toString(round(IQR(clusterize_df$HD_Clusterize),2))
+clusterize_iqr_assd = toString(round(IQR(clusterize_df$ASSD_Clusterize),2))
+clusterize_iqr_prec = toString(round(IQR(clusterize_df$Prec_Clusterize),2))
+clusterize_iqr_recall = toString(round(IQR(clusterize_df$Recall_Clusterize),2))
+
+clusterize_dc_stats = paste(clusterize_med_dc," (", clusterize_iqr_dc, ")", sep="")
+clusterize_hd_stats = paste(clusterize_med_hd," (", clusterize_iqr_hd, ")", sep="")
+clusterize_assd_stats = paste(clusterize_med_assd," (", clusterize_iqr_assd, ")", sep="")
+clusterize_prec_stats = paste(clusterize_med_prec," (", clusterize_iqr_prec, ")", sep="")
+clusterize_recall_stats = paste(clusterize_med_recall," (", clusterize_iqr_recall, ")", sep="")
+
+```
+
+```{r}
+
+### get data for ALI, lesionGNB, and linda
+
+dataFile <- read.csv("./image_metrics_181subj_long.csv")
+dataFile$algorithm <- as.factor(dataFile$algorithm)
+attach(dataFile)
+
+# ALI summary
+ALI_med_dc = toString(round(summary(dataFile$DC[algorithm=="ALI"])[[3]],2))
+ALI_med_hd = toString(round(summary(dataFile$HD[algorithm=="ALI"])[[3]],2))
+ALI_med_assd = toString(round(summary(dataFile$ASSD[algorithm=="ALI"])[[3]],2))
+ALI_med_prec = toString(round(summary(dataFile$Precision[algorithm=="ALI"])[[3]],2))
+ALI_med_recall = toString(round(summary(dataFile$Recall[algorithm=="ALI"])[[3]],2))
+
+ALI_iqr_dc = toString(round(IQR(dataFile$DC[algorithm=="ALI"]),2))
+ALI_iqr_hd = toString(round(IQR(dataFile$HD[algorithm=="ALI"]),2))
+ALI_iqr_assd = toString(round(IQR(dataFile$ASSD[algorithm=="ALI"]),2))
+ALI_iqr_prec = toString(round(IQR(dataFile$Precision[algorithm=="ALI"]),2))
+ALI_iqr_recall = toString(round(IQR(dataFile$Recall[algorithm=="ALI"]),2))
+
+ALI_dc_stats = paste(ALI_med_dc," (", ALI_iqr_dc, ")", sep="")
+ALI_hd_stats = paste(ALI_med_hd," (", ALI_iqr_hd, ")", sep="")
+ALI_assd_stats = paste(ALI_med_assd," (", ALI_iqr_assd, ")", sep="")
+ALI_prec_stats = paste(ALI_med_prec," (", ALI_iqr_prec, ")", sep="")
+ALI_recall_stats = paste(ALI_med_recall," (", ALI_iqr_recall, ")", sep="")
+
+# linda summary
+linda_med_dc = toString(round(summary(dataFile$DC[algorithm=="linda"])[[3]],2))
+linda_med_hd = toString(round(summary(dataFile$HD[algorithm=="linda"])[[3]],2))
+linda_med_assd = toString(round(summary(dataFile$ASSD[algorithm=="linda"])[[3]],2))
+linda_med_prec = toString(round(summary(dataFile$Precision[algorithm=="linda"])[[3]],2))
+linda_med_recall = toString(round(summary(dataFile$Recall[algorithm=="linda"])[[3]],2))
+
+
+linda_iqr_dc = toString(round(IQR(dataFile$DC[algorithm=="linda"]),2))
+linda_iqr_hd = toString(round(IQR(dataFile$HD[algorithm=="linda"]),2))
+linda_iqr_assd = toString(round(IQR(dataFile$ASSD[algorithm=="linda"]),2))
+linda_iqr_prec = toString(round(IQR(dataFile$Precision[algorithm=="linda"]),2))
+linda_iqr_recall = toString(round(IQR(dataFile$Recall[algorithm=="linda"]),2))
+
+linda_dc_stats = paste(linda_med_dc," (", linda_iqr_dc, ")", sep="")
+linda_hd_stats = paste(linda_med_hd," (", linda_iqr_hd, ")", sep="")
+linda_assd_stats = paste(linda_med_assd," (", linda_iqr_assd, ")", sep="")
+linda_prec_stats = paste(linda_med_prec," (", linda_iqr_prec, ")", sep="")
+linda_recall_stats = paste(linda_med_recall," (", linda_iqr_recall, ")", sep="")
+
+
+# lesionGnb summary
+lesionGnb_med_dc = toString(round(summary(dataFile$DC[algorithm=="lesionGnb"])[[3]],2))
+lesionGnb_med_hd = toString(round(summary(dataFile$HD[algorithm=="lesionGnb"])[[3]],2))
+lesionGnb_med_assd = toString(round(summary(dataFile$ASSD[algorithm=="lesionGnb"])[[3]],2))
+lesionGnb_med_prec = toString(round(summary(dataFile$Precision[algorithm=="lesionGnb"])[[3]],2))
+lesionGnb_med_recall = toString(round(summary(dataFile$Recall[algorithm=="lesionGnb"])[[3]],2))
+
+
+lesionGnb_iqr_dc = toString(round(IQR(dataFile$DC[algorithm=="lesionGnb"]),2))
+lesionGnb_iqr_hd = toString(round(IQR(dataFile$HD[algorithm=="lesionGnb"]),2))
+lesionGnb_iqr_assd = toString(round(IQR(dataFile$ASSD[algorithm=="lesionGnb"]),2))
+lesionGnb_iqr_prec = toString(round(IQR(dataFile$Precision[algorithm=="lesionGnb"]),2))
+lesionGnb_iqr_recall = toString(round(IQR(dataFile$Recall[algorithm=="lesionGnb"]),2))
+
+lesionGnb_dc_stats = paste(lesionGnb_med_dc," (", lesionGnb_iqr_dc, ")", sep="")
+lesionGnb_hd_stats = paste(lesionGnb_med_hd," (", lesionGnb_iqr_hd, ")", sep="")
+lesionGnb_assd_stats = paste(lesionGnb_med_assd," (", lesionGnb_iqr_assd, ")", sep="")
+lesionGnb_prec_stats = paste(lesionGnb_med_prec," (", lesionGnb_iqr_prec, ")", sep="")
+lesionGnb_recall_stats = paste(lesionGnb_med_recall," (", lesionGnb_iqr_recall, ")", sep="")
+```
+
+```{r}
+########
+
+descripstats<-matrix(c(clusterize_dc_stats,clusterize_hd_stats,clusterize_assd_stats,clusterize_prec_stats,clusterize_recall_stats,ALI_dc_stats,ALI_hd_stats,ALI_assd_stats,ALI_prec_stats,ALI_recall_stats,lesionGnb_dc_stats,lesionGnb_hd_stats,lesionGnb_assd_stats,lesionGnb_prec_stats,lesionGnb_recall_stats,linda_dc_stats,linda_hd_stats,linda_assd_stats,linda_prec_stats,linda_recall_stats),ncol=4,byrow=FALSE)
+colnames(descripstats)<-c("Clusterize","ALI","lesionGnb", "LINDA" )
+rownames(descripstats)<-c("DC","HD (mm)","ASSD (mm)","Precision","Recall")
+descripstats<-as.table(descripstats)
+descripstats<-xtable(descripstats)
+
+print.xtable(descripstats, type="html")
+
+```
