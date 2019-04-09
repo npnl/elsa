@@ -1,0 +1,218 @@
+---
+title: "LesionSize_ANOVA"
+author: "KLI"
+date: "4/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r echo=FALSE, include=FALSE}
+library(ggplot2)
+library(plyr)
+library(MASS)
+library(rcompanion)
+library(RVAideMemoire)
+library(ggpubr)
+library(dplyr)
+require(gridExtra)
+
+#set working directory
+#setwd('')
+
+```
+
+```{r}
+my_comparisons <- list( c("1", "2"), c("1", "3"), c("2","3") )
+
+symnum.args <- list(
+  cutpoints = c(0.00003, 0.0003, 0.003, 0.017, 1), 
+  symbols = c( "***", "**", "*", "ns")
+)
+```
+
+
+```{r}
+
+working_df <- read.csv("181_MetaData+DC.csv")
+attach(working_df)
+working_df$LesVol_Categorical<-as.factor(working_df$LesVol_Categorical)
+```
+
+
+```{r}
+p1=ggplot(working_df,aes(x=ALI_DC,group=LesVol_Categorical,fill=LesVol_Categorical))+
+  geom_histogram(position="dodge",bins=5)+
+  theme_classic() + 
+  ylab("frequency")+
+  scale_x_continuous(name="Dice Coefficient", 
+                     breaks=c(0,0.2,0.4,0.6,0.8,1.0))+
+  scale_fill_manual(name="Lesion Size",
+                    breaks=c("1", "2", "3"),
+                    labels=c("Small","Medium","Large"),
+                    values=cbPalette)
+
+p1=p1+theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black"))+
+  ggtitle("ALI")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+#######################
+
+p2=ggplot(working_df,aes(x=lesion_gnb_DC,group=LesVol_Categorical,fill=LesVol_Categorical))+
+  geom_histogram(position="dodge",bins=5)+
+  theme_classic() + 
+  ylab("frequency")+
+  scale_x_continuous(name="Dice Coefficient", 
+                     breaks=c(0,0.2,0.4,0.6,0.8,1.0))+
+  scale_fill_manual(name="Lesion Size",
+                    breaks=c("1", "2", "3"),
+                    labels=c("Small","Medium","Large"),
+                    values=cbPalette)
+
+
+p2=p2+theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black"))+
+  ggtitle("LesionGnb")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+
+######################
+
+p3=ggplot(working_df,aes(x=linda_DC,group=LesVol_Categorical,fill=LesVol_Categorical))+
+  geom_histogram(position="dodge",bins=5)+
+  theme_classic() + 
+  ylab("frequency")+
+  scale_x_continuous(name="Dice Coefficient", 
+                     breaks=c(0,0.2,0.4,0.6,0.8,1.0))+
+  scale_fill_manual(name="Lesion Size",
+                    breaks=c("1", "2", "3"),
+                    labels=c("Small","Medium","Large"),
+                    values=cbPalette)
+
+
+p3=p3+theme(
+  # Hide panel borders and remove grid lines
+  panel.border = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  # Change axis line
+  axis.line = element_line(colour = "black")
+)+
+  ggtitle("LINDA")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
+###################
+
+fig1=ggarrange(p1,p2,p3,ncol=3,common.legend=TRUE,legend="bottom")
+#ggsave("./lesSize_hist.tiff",dpi=300,width = 7,height=3)
+
+```
+
+# ALI
+```{r}
+res.aov<-aov(ALI_DC ~ LesVol_Categorical, data = working_df)
+plot(res.aov)
+```
+
+## normality of residuals violated, use kruskal wallis
+```{r}
+kruskal.test(ALI_DC ~ LesVol_Categorical, data = working_df)
+pairwise.wilcox.test(ALI_DC, LesVol_Categorical,
+                 p.adjust.method = "bonferroni")
+
+
+s1<-ggplot(working_df, aes(x=LesVol_Categorical, y=ALI_DC, color=LesVol_Categorical)) +
+  geom_boxplot()+
+  theme_classic() +
+  labs(title="ALI",x="Lesion Size", y = "DC")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+(s1+scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"),
+                       name="Lesion Size",
+                       breaks=c("1", "2", "3"),
+                       labels=c("Small","Medium","Large"))+ 
+    stat_compare_means(method="wilcox.test",comparisons = my_comparisons,symnum.args = symnum.args) -> s1)
+```
+
+# LesionGnb
+```{r}
+
+res.aov<-aov(lesion_gnb_DC ~ LesVol_Categorical, data = working_df)
+plot(res.aov)
+# normlesionGNBty of residuals violated, use kruskal wallis
+
+
+s2<-ggplot(working_df, aes(x=LesVol_Categorical, y=lesion_gnb_DC, color=LesVol_Categorical)) +
+  geom_boxplot()+
+  theme_classic() +
+  labs(title="LesionGnb",x="Lesion Size", y = "DC")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+(s2+scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"),
+                       breaks=c("1", "2", "3"),
+                       name="Lesion Size",
+                       labels=c("Small","Medium","Large"))+     
+                      stat_compare_means(method="wilcox.test",comparisons = my_comparisons,symnum.args = symnum.args) -> s2)
+
+kruskal.test(lesion_gnb_DC ~ LesVol_Categorical, data = working_df)
+pairwise.wilcox.test(lesion_gnb_DC, LesVol_Categorical,
+                 p.adjust.method = "bonferroni")
+```
+# LINDA
+```{r}
+res.aov<-aov(linda_DC ~ LesVol_Categorical, data = working_df)
+plot(res.aov)
+# normlindaty of residuals violated, use kruskal wallis
+
+kruskal.test(linda_DC ~ LesVol_Categorical, data = working_df)
+pairwise.wilcox.test(linda_DC,LesVol_Categorical,
+                 p.adjust.method = "bonferroni")
+
+
+s3<-ggplot(working_df, aes(x=LesVol_Categorical, y=linda_DC, color=LesVol_Categorical)) +
+  geom_boxplot()+
+  theme_classic() +
+  labs(title="LINDA",x="Stroke Territory", y = "DC")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+(s3+scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"),
+                       name="Lesion Size",
+                       breaks=c("1", "2", "3"),
+                       labels=c("Small","Medium","Large"))+ 
+    stat_compare_means(method="wilcox.test",comparisons = my_comparisons,symnum.args = symnum.args) -> s3)
+
+
+```
+
+
+```{r}
+fig2=ggarrange(s1,s2,s3,ncol=3,nrow=1,common.legend=TRUE,legend = "bottom")
+#ggsave("./lesionSize_2.tiff",dpi=300,width = 9,height=5)
+
+(fig3=ggarrange(fig1,fig2,ncol=1,nrow=2,heights=c(0.75,1.1)))
+ggsave("./lesionSize.tiff",dpi=300,width = 8,height=6)
+```
+
