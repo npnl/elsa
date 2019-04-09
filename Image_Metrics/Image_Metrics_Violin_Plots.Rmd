@@ -1,0 +1,93 @@
+---
+title: "Image_Metrics_Violin_Plots"
+author: "KLI"
+date: "4/8/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(data.table)
+library(ggplot2)
+require(gridExtra)
+library(ggsignif)
+library(ggpubr)
+```
+
+
+##Making Violin Plots
+```{r}
+dataLong <-read.csv("./Image_Metrics_132_long.csv")
+attach(dataLong)
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# Visualize: Specify the comparisons you want
+my_comparisons <- list( c("ALI", "lesionGnb"), c("lesionGnb", "linda"), c("linda", "ALI") )
+
+symnum.args <- list(
+  cutpoints = c(0.00003, 0.0003, 0.003, 0.017, 1), 
+  symbols = c( "***", "**", "*", "ns")
+  )
+
+(violin1<- ggplot(dataLong,aes(x=algorithm, y=DC, fill=algorithm)) +
+  geom_violin(trim=FALSE) + 
+  geom_boxplot(width=0.1, fill="white") + 
+  stat_summary(fun.y=mean,geom="point", shape=23) + 
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  labs(title="Dice Coefficient", y="DC") +
+  theme(text=element_text(size=15),
+        axis.title.x=element_blank(),
+        plot.title = element_text(hjust = 0.5)))+
+  stat_compare_means(method="wilcox.test",paired=TRUE,comparisons = my_comparisons,symnum.args = symnum.args) -> violin1
+
+(violin2<- ggplot(dataLong,aes(x=algorithm, y=HD, fill=algorithm)) +
+  geom_violin(trim=FALSE) + 
+  geom_boxplot(width=0.1, fill="white") + 
+  stat_summary(fun.y=mean,geom="point", shape=23) + 
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  labs(title="HD (mm)",y="HD") +
+  theme(text=element_text(size=16),
+        axis.title.x=element_blank(),
+        plot.title = element_text(hjust = 0.5)))+
+  stat_compare_means(method="wilcox.test",paired=TRUE,comparisons = my_comparisons, symnum.args = symnum.args) -> violin2
+
+(violin3<- ggplot(dataLong,aes(x=algorithm, y=ASSD, fill=algorithm)) +
+  geom_violin(trim=FALSE) + 
+  geom_boxplot(width=0.1, fill="white") + 
+  stat_summary(fun.y=mean,geom="point", shape=23) + 
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  labs(title="ASSD (mm)", y="ASSD") +
+  theme(text=element_text(size=16),
+        axis.title.x=element_blank(),
+        plot.title = element_text(hjust = 0.5)))+
+  stat_compare_means(method="wilcox.test",paired=TRUE,comparisons = my_comparisons, symnum.args = symnum.args) ->violin3
+
+(violin4<- ggplot(dataLong,aes(x=algorithm, y=Precision, fill=algorithm)) +
+  geom_violin(trim=FALSE) + 
+  geom_boxplot(width=0.1, fill="white") + 
+  stat_summary(fun.y=mean,geom="point", shape=23) + 
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  labs(title="Precision",  y="Precision") +
+  theme(text=element_text(size=16),
+        axis.title.x=element_blank(),
+        plot.title = element_text(hjust = 0.5)))+
+  stat_compare_means(method="wilcox.test",paired=TRUE,comparisons = my_comparisons, symnum.args = symnum.args) -> violin4
+
+(violin5<- ggplot(dataLong,aes(x=algorithm, y=Recall, fill=algorithm)) +
+  geom_violin(trim=FALSE) + 
+  geom_boxplot(width=0.1, fill="white") + 
+  stat_summary(fun.y=mean,geom="point", shape=23) + 
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  labs(title="Recall", y="Recall") +
+  theme(text=element_text(size=16),
+        axis.title.x=element_blank(),
+        plot.title = element_text(hjust = 0.5)))+
+  stat_compare_means(method="wilcox.test",paired=TRUE,comparisons = my_comparisons, symnum.args = symnum.args) ->violin5
+
+fig=ggarrange(violin1,violin2,violin3,violin4,violin5,ncol=3,nrow=2,common.legend=TRUE,legend="bottom")
+annotate_figure(fig,top=text_grob("Image Metrics", face="bold",size=20))
+
+ggsave("./figure3.tiff",dpi=300,width = 10,height=8)
+
+```

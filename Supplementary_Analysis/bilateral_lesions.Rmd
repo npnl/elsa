@@ -1,0 +1,117 @@
+---
+title: "bilateral_lesions"
+author: "Lily"
+date: "3/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(pander)
+
+metadata<-read.csv("/Users/lilyito/Documents/Projects/Lesion_Segmentations/Analytics/20170810_ATLAS_Meta-Data_Release_1.1.csv",header=TRUE)
+
+
+dcdata<-read.csv("/Users/lilyito/Documents/Projects/Lesion_Segmentations/Analytics/R_InputData/Data_ALL.csv",header=TRUE)
+
+subjects<-merge(metadata,dcdata,by="Subject.ID")
+primary_les<-subjects %>% 
+  group_by(LesHem) %>% 
+  nest()
+```
+###LHS data
+```{r}
+grouped_data=subjects %>% 
+  group_by(LesHem,X..RH.Strokes.Total>0) %>% 
+  nest()
+
+LHS_bilateral=grouped_data$data[[3]]
+LHS_unilateral=grouped_data$data[[2]]
+# LHS Bilateral
+LHS_bilateral %>% 
+  summarise(
+    meanALI=mean(DI_ALI),
+    medianALI=median(DI_ALI),
+    meanLesionGnb=mean(DI_LesionGNB),
+    medianLesionGnb=median(DI_LesionGNB),
+    meanLinda=mean(DI_Linda),
+    medianLinda=median(DI_Linda)
+  )%>% 
+  rename("ALI (mean)"=meanALI) %>% 
+  pander()
+
+# unilateral
+LHS_unilateral %>% 
+  summarise(
+    meanALI=mean(DI_ALI),
+    medianALI=median(DI_ALI),
+    meanLesionGnb=mean(DI_LesionGNB),
+    medianLesionGnb=median(DI_LesionGNB),
+    meanLinda=mean(DI_Linda),
+    medianLinda=median(DI_Linda)
+  )%>% 
+  rename("ALI (mean)"=meanALI) %>% 
+  pander()
+```
+### RHS data
+```{r}
+#############
+
+grouped_data=subjects %>% 
+  group_by(LesHem,X..LH.Strokes.Total>0) %>% 
+  nest()
+
+RHS_bilateral=grouped_data$data[[1]]
+RHS_unilateral=grouped_data$data[[3]]
+#RHS Bilateral
+RHS_bilateral %>% 
+  summarise(
+    meanALI=mean(DI_ALI),
+    medianALI=median(DI_ALI),
+    meanLesionGnb=mean(DI_LesionGNB),
+    medianLesionGnb=median(DI_LesionGNB),
+    meanLinda=mean(DI_Linda),
+    medianLinda=median(DI_Linda)
+  )%>% 
+  rename("ALI (mean)"=meanALI) %>% 
+  pander()
+
+#RHS unilateral
+RHS_unilateral %>% 
+  summarise(
+    meanALI=mean(DI_ALI),
+    medianALI=median(DI_ALI),
+    meanLesionGnb=mean(DI_LesionGNB),
+    medianLesionGnb=median(DI_LesionGNB),
+    meanLinda=mean(DI_Linda),
+    medianLinda=median(DI_Linda)
+  )%>% 
+  rename("ALI (mean)"=meanALI) %>% 
+  pander()
+```
+##combine the data sets
+```{r}
+selectvars <-c("Subject.ID","DI_ALI","DI_LesionGNB","DI_Linda")
+bilateral=LHS_bilateral[selectvars]
+
+bilateral=RHS_bilateral[selectvars] %>% 
+  rbind(.,bilateral)
+
+unilateral=LHS_unilateral[selectvars]
+
+unilateral=RHS_unilateral[selectvars] %>% 
+  rbind(.,unilateral)
+```
+# conduct t-tests for each 
+```{r}
+t.test(bilateral$DI_ALI,unilateral$DI_ALI)
+t.test(bilateral$DI_LesionGNB,unilateral$DI_LesionGNB)
+t.test(bilateral$DI_Linda,unilateral$DI_Linda)
+```
+
+
+

@@ -1,0 +1,133 @@
+---
+title: "StrokeTerritory_ANOVA"
+author: "KLI"
+date: "3/4/2019"
+output: html_document
+---
+
+```{r echo=FALSE, include=FALSE}
+library(ggplot2)
+library(plyr)
+library(MASS)
+library(rcompanion)
+library(RVAideMemoire)
+library("ggpubr")
+
+#set working directory
+#setwd('')
+
+working_df <- read.csv("181_MetaData+DC.csv")
+
+summary(working_df$ALI_DC)
+
+myvars <- c("strokeType","ALI_DC")
+ALI <-working_df[myvars]
+levels(ALI$strokeType)
+ALI$strokeType[ALI$strokeType=="1"]<-"cortical"
+ALI$strokeType[ALI$strokeType=="2"]<-"subcortical"
+ALI$strokeType[ALI$strokeType=="3"]<-"brainstem"
+ALI$strokeType[ALI$strokeType=="4"]<-"cerebellar"
+ALI$strokeType<-as.factor(ALI$strokeType)
+
+library("dplyr")
+```
+
+```{r echo=FALSE}
+group_by(ALI, strokeType) %>%
+  summarise(
+    count = n(),
+    mean = mean(ALI_DC, na.rm = TRUE),
+    sd = sd(ALI_DC, na.rm = TRUE),
+    median = median(ALI_DC, na.rm = TRUE),
+    IQR = IQR(ALI_DC, na.rm = TRUE)
+  )
+
+ggboxplot(ALI, x = "strokeType", y = "ALI_DC", 
+          color = "strokeType", palette = c("#00AFBB", "#E7B800", "#FC4E07","660033"),
+          order = c("cortical", "subcortical", "brainstem","cerebellar"),
+          ylab = "Dice", xlab = "Stroke Type")
+
+res.aov<-aov(ALI_DC ~ strokeType, data = ALI)
+plot(res.aov)
+# normality of residuals violated, use kruskal wallis
+
+kruskal.test(ALI_DC ~ strokeType, data = ALI)
+pairwise.wilcox.test(ALI$ALI_DC, ALI$strokeType,
+                 p.adjust.method = "bonferroni")
+
+```
+
+# Lesion GNB
+```{r echo=FALSE}
+myvars <- c("strokeType","lesion_gnb_DC")
+lesionGNB <-working_df[myvars]
+
+
+levels(lesionGNB$strokeType)
+lesionGNB$strokeType[lesionGNB$strokeType=="1"]<-"cortical"
+lesionGNB$strokeType[lesionGNB$strokeType=="2"]<-"subcortical"
+lesionGNB$strokeType[lesionGNB$strokeType=="3"]<-"brainstem"
+lesionGNB$strokeType[lesionGNB$strokeType=="4"]<-"cerebellar"
+lesionGNB$strokeType<-as.factor(lesionGNB$strokeType)
+
+group_by(lesionGNB, strokeType) %>%
+  summarise(
+    count = n(),
+    mean = mean(lesion_gnb_DC, na.rm = TRUE),
+    sd = sd(lesion_gnb_DC, na.rm = TRUE),
+    median = median(lesion_gnb_DC, na.rm = TRUE),
+    IQR = IQR(lesion_gnb_DC, na.rm = TRUE)
+  )
+
+ggboxplot(lesionGNB, x = "strokeType", y = "lesion_gnb_DC", 
+          color = "strokeType", palette = c("#00AFBB", "#E7B800", "#FC4E07","660033"),
+          order = c("cortical", "subcortical", "brainstem","cerebellar"),
+          ylab = "Dice", xlab = "Stroke Type")
+
+res.aov<-aov(lesion_gnb_DC ~ strokeType, data = lesionGNB)
+plot(res.aov)
+# normlesionGNBty of residuals violated, use kruskal wallis
+
+kruskal.test(lesion_gnb_DC ~ strokeType, data = lesionGNB)
+pairwise.wilcox.test(lesionGNB$lesion_gnb_DC, lesionGNB$strokeType,
+                 p.adjust.method = "bonferroni")
+
+```
+
+# Linda
+
+```{r echo=FALSE}
+myvars <- c("strokeType","linda_DC")
+linda <-working_df[myvars]
+
+linda <-working_df[myvars]
+levels(linda$strokeType)
+linda$strokeType[linda$strokeType=="1"]<-"cortical"
+linda$strokeType[linda$strokeType=="2"]<-"subcortical"
+linda$strokeType[linda$strokeType=="3"]<-"brainstem"
+linda$strokeType[linda$strokeType=="4"]<-"cerebellar"
+linda$strokeType<-as.factor(linda$strokeType)
+
+group_by(linda, strokeType) %>%
+  summarise(
+    count = n(),
+    mean = mean(linda_DC, na.rm = TRUE),
+    sd = sd(linda_DC, na.rm = TRUE),
+    median = median(linda_DC, na.rm = TRUE),
+    IQR = IQR(linda_DC, na.rm = TRUE)
+  )
+
+ggboxplot(linda, x = "strokeType", y = "linda_DC", 
+          color = "strokeType", palette = c("#00AFBB", "#E7B800", "#FC4E07","660033"),
+          order = c("cortical", "subcortical", "brainstem","cerebellar"),
+          ylab = "Dice", xlab = "Stroke Type")
+
+res.aov<-aov(linda_DC ~ strokeType, data = linda)
+plot(res.aov)
+# normlindaty of residuals violated, use kruskal wallis
+
+kruskal.test(linda_DC ~ strokeType, data = linda)
+pairwise.wilcox.test(linda$linda_DC, linda$strokeType,
+                 p.adjust.method = "bonferroni")
+```
+

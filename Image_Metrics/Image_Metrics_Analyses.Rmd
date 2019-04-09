@@ -1,22 +1,22 @@
 ---
 title: "Lesion Segmentation Image Metrics"
 author: "KLI"
-date: "9/10/2018"
+date: "04/08/2019"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-#library(PMCMR)
 library(data.table)
-library(Hmisc)
-library(corrgram)
-#library(mvoutlier)
 library(ggplot2)
+require(gridExtra)
+library(ggsignif)
+library(ggpubr)
 ```
 
 ```{r echo=FALSE}
 #setwd('')
-dataFile <- read.csv("Image_Metrics_132subj.csv")
+dataFile <- read.csv("./Image_Metrics_132subj.csv")
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 attach(dataFile)
 
@@ -26,50 +26,64 @@ DC ALI
 ```{r dc, echo=FALSE}
 summary(dataFile$ALI_DC)
 
-ggplot(dataFile, aes(x=ALI_DC, fill=lesion.x))+
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
+(dc1=ggplot(dataFile, aes(x=ALI_DC, fill=lesion.x))+
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  theme(text=element_text(size=16),
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
   stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
   labs(y="Frequency",
        x="Dice",
-       title="DC for ALI") +
-  ylim(c(0,30))
+       title="ALI",
+       fill="Lesion") +
+  ylim(c(0,20)))
+
 ```
 DC lesion_gnb
 ```{r echo=FALSE}
-sprintf("DC LesionGNB")
 summary(dataFile$lesion_gnb_DC)
 
 
-ggplot(dataFile, aes(x=lesion_gnb_DC, fill=lesion.x)) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
+(dc2=ggplot(dataFile, aes(x=lesion_gnb_DC, fill=lesion.x)) +
+  theme_classic() + scale_fill_manual(values=cbPalette) +
+  theme(text=element_text(size=16),
+        plot.title = element_text(hjust = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
   stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
   labs(y="Frequency",
        x="Dice",
-       title="DC for lesion_gnb") +
-  ylim(c(0,30))
-
+       title="lesionGnb",
+       fill="Lesion") +
+  ylim(c(0,20)))
 ```
 DC LINDA
 ```{r echo=FALSE}
 summary(dataFile$linda_DC)
 
-ggplot(dataFile, aes(x=linda_DC, fill=lesion.x))+
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
+(dc3=ggplot(dataFile, aes(x=linda_DC, fill=lesion.x))+
+  theme_classic() + 
+  scale_fill_manual(values=cbPalette) +
+  theme(text=element_text(size=16),
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
   stat_bin(breaks=c(-0.05, seq(0.00000001,1.0, by=0.05))) +
   labs(y="Frequency",
        x="Dice",
-       title="DC for LINDA") +
-  ylim(c(0,30))
+       title="LINDA",
+       fill="Lesion") +
+  ylim(c(0,20)))
 
-boxplot(dataFile$ALI_DC,dataFile$lesion_gnb_DC,dataFile$linda_DC,names=c("ALI","lesion_gnb","LINDA"), col="lightgray")
-title("Dice Coefficient")
+
+fig=ggarrange(dc1,dc2,dc3,ncol=3,common.legend=TRUE,legend="bottom")
+annotate_figure(fig,top=text_grob("Dice Coefficient", face="bold",size=20))
+ggsave("./figure2_a.tiff",dpi=300,width = 8,height=3)
 ```
-Statistical Analyses
+#Statistical Analyses
 
-Friedman's Test
+##Friedman's Test
 ```{r echo=FALSE}
 
 DataTable<-matrix(c(dataFile$ALI_DC,dataFile$lesion_gnb_DC,dataFile$linda_DC),ncol=3)
@@ -89,7 +103,7 @@ wilcox.test(dataFile$linda_DC,dataFile$lesion_gnb_DC,paired=TRUE)$p.value*3
 
 ```
 
-HAUSDORFF's DISTANCE
+##HAUSDORFF's DISTANCE
 ```{r hd, echo=FALSE}
 
 boxplot(dataFile$ALI_HD,dataFile$lesion_gnb_HD,dataFile$linda_HD,names=c("ALI","lesion_gnb","LINDA"), col="gray")
@@ -120,7 +134,7 @@ wilcox.test(dataFile$linda_HD,dataFile$lesion_gnb_HD,paired=TRUE)$p.value*3
 
 
 ```
-ASSD
+##ASSD
 ```{r assd, echo=FALSE}
 
 boxplot(dataFile$ALI_ASSD,dataFile$lesion_gnb_ASSD,dataFile$linda_ASSD,names=c("ALI","lesion_gnb","LINDA"),col="gray")
@@ -146,7 +160,7 @@ wilcox.test(dataFile$ALI_ASSD,dataFile$linda_ASSD,paired=TRUE)$p.value*3
 wilcox.test(dataFile$linda_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)
 wilcox.test(dataFile$linda_ASSD,dataFile$lesion_gnb_ASSD,paired=TRUE)$p.value*3
 ```
-PRECISION
+##PRECISION
 ```{r precision, echo=FALSE}
 
 boxplot(dataFile$ALI_Precision,dataFile$lesion_gnb_Precision,dataFile$linda_Precision,names=c("ALI","lesion_gnb","LINDA"),col="gray")
@@ -175,7 +189,7 @@ wilcox.test(dataFile$linda_Precision,dataFile$lesion_gnb_Precision,paired=TRUE)$
 
 ```
 
-RECALL
+##RECALL
 ```{r recall, echo=FALSE}
 
 boxplot(dataFile$ALI_Recall,dataFile$lesion_gnb_Recall,dataFile$linda_Recall,names=c("ALI","lesion_gnb","LINDA"), col="gray")
@@ -203,3 +217,6 @@ wilcox.test(dataFile$ALI_Recall,dataFile$linda_Recall,paired=TRUE)$p.value*3
 wilcox.test(dataFile$linda_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)
 wilcox.test(dataFile$linda_Recall,dataFile$lesion_gnb_Recall,paired=TRUE)$p.value*3
 ```
+
+
+
