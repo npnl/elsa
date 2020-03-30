@@ -10,6 +10,9 @@ Ito, K. L., Kim, H., & Liew, S. L. (2019). A comparison of automated lesion segm
 
 __Raw automated lesion mask files can be found under the zipped file "lesion_masks".__ Please see [this paper](https://doi-org.libproxy1.usc.edu/10.1038/sdata.2018.11) for raw T1w MRIs and manual lesion tracings. 
 
+__/Evaluation_Metrics__
+- this directory contains matlab files for calculating the Dice Coefficient, Hausdorff's Distance, Average Symmetric Surface Distance, Precision, and Recall for any two nifti mask files.
+
 __/Image_Metrics__
 - this directory contains the csv file with the image metrics we analyzed ("Image_Metrics_132subj.csv"dice, assd, hausdorff's distance, precision, recall); and the R markdown file that performed Friedman's Tests on each metric, followed by pairwise comparisons.
 - Figures 2 and 3 were generated from this manuscript
